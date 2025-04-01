@@ -3,9 +3,9 @@ services:
     image: postgres:latest
     container_name: postgres_cdas
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: exercise2_db
+      POSTGRES_USER: ${APP_DB_USERNAME}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      POSTGRES_DB: ${APP_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
