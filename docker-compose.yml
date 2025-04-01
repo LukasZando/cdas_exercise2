@@ -1,0 +1,12 @@
+services:
+  database:
+    image: postgres:latest
+    container_name: postgres_cdas
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: exercise2_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db_data:/var/lib/postgresql/data
