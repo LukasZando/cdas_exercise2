@@ -4,6 +4,7 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  workflow_dispatch:
 
 env:
   APP_DB_USERNAME: ${{ vars.APP_DB_USERNAME }}
@@ -13,5 +14,6 @@ env:
 jobs:
   actions_test:
     runs-on: ubuntu-latest
+    environment: Test
     steps:
       - run: echo $APP_DB_USERNAME
