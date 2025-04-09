@@ -21,7 +21,9 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21.x'
-      - name: Install dependencies
-        run: go get .
-      - name: Build
+      - name: Start Container (postgreSQL)
+        run: docker-compose up -d
+      - name: Build Go
         run: go build -v ./...
+      - name: Test Go
+        run: go test -v ./...
