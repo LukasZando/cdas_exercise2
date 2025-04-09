@@ -189,3 +189,129 @@ func TestDeleteProduct(t *testing.T) {
 	response = executeRequest(req)
 	checkResponseCode(t, http.StatusNotFound, response.Code)
 }
+
+func TestGetProducts(t *testing.T) {
+	clearTable()
+	addProducts(2)
+
+	req, _ := http.NewRequest("GET", "/products", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 2 {
+		t.Errorf("Expected 2 products. Got %d", len(m))
+	}
+}
+
+func TestSearchProductsSuccess(t *testing.T) {
+	clearTable()
+	addProducts(2)
+
+	req, _ := http.NewRequest("GET", "/products/search?name=Product 1", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 1 {
+		t.Errorf("Expected 1 product. Got %d", len(m))
+	}
+
+	if m[0]["name"] != "Product 1" {
+		t.Errorf("Expected product name to be 'Product 1'. Got '%v'", m[0]["name"])
+	}
+}
+
+func TestSearchProductsFailure(t *testing.T) {
+	clearTable()
+	addProducts(2)
+
+	req, _ := http.NewRequest("GET", "/products/search?name=Product 3", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 0 {
+		t.Errorf("Expected 0 products. Got %d", len(m))
+	}
+}
+
+func TestGetTopProducts(t *testing.T) {
+	clearTable()
+	addProducts(2)
+
+	req, _ := http.NewRequest("GET", "/products/top?count=1", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 1 {
+		t.Errorf("Expected 1 product. Got %d", len(m))
+	}
+
+	if m[0]["name"] != "Product 1" {
+		t.Errorf("Expected product name to be 'Product 1'. Got '%v'", m[0]["name"])
+	}
+}
+
+func TestGetTopProductsEmpty(t *testing.T) {
+	clearTable()
+
+	req, _ := http.NewRequest("GET", "/products/top?count=1", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 0 {
+		t.Errorf("Expected 0 products. Got %d", len(m))
+	}
+}
+
+func TestGetProductsRange(t *testing.T) {
+	clearTable()
+	addProducts(5)
+
+	req, _ := http.NewRequest("GET", "/products/range?min=15&max=45", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 3 {
+		t.Errorf("Expected 3 products. Got %d", len(m))
+	}
+}
+
+func TestGetProductsRangeNotFound(t *testing.T) {
+	clearTable()
+	addProducts(5)
+
+	req, _ := http.NewRequest("GET", "/products/range?min=1&max=2", nil)
+	response := executeRequest(req)
+
+	checkResponseCode(t, http.StatusOK, response.Code)
+
+	var m []map[string]interface{}
+	json.Unmarshal(response.Body.Bytes(), &m)
+
+	if len(m) != 0 {
+		t.Errorf("Expected 0 products. Got %d", len(m))
+	}
+}
