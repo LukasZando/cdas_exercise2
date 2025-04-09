@@ -1,0 +1,17 @@
+name: cdas-go
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+env:
+  APP_DB_USERNAME: ${{ vars.APP_DB_USERNAME }}
+  ADD_DB_PASSWORD: ${{ vars.ADD_DB_PASSWORD }}
+  APP_DB_NAME: ${{ vars.APP_DB_NAME }}
+
+jobs:
+  actions_test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo $APP_DB_USERNAME
