@@ -7,7 +7,7 @@ on:
 
 env:
   APP_DB_USERNAME: ${{ vars.APP_DB_USERNAME }}
-  ADD_DB_PASSWORD: ${{ vars.APP_DB_PASSWORD }}
+  APP_DB_PASSWORD: ${{ vars.APP_DB_PASSWORD }}
   APP_DB_NAME: ${{ vars.APP_DB_NAME }}
 
 jobs:
