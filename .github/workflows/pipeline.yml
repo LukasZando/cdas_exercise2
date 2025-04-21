@@ -42,4 +42,4 @@ jobs:
         with:
           args: >
             -Dsonar.organization=lukaszando
-            -Dsonar.projectKey=cdas_exercise2
+            -Dsonar.projectKey=LukasZando_cdas_exercise2
