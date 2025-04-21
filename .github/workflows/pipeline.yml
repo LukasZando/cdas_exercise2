@@ -39,3 +39,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v5.1.0
         env:
           SONAR_TOKEN: ${{ vars.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=lukaszando
+            -Dsonar.projectKey=cdas_exercise2
