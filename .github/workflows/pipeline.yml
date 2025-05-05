@@ -58,9 +58,9 @@ jobs:
           password: ${{ secrets.REGISTRY_PASSWORD }}
       - name: Build Docker image
         run: docker build -t lukzan/cdas-go:latest .
-      - name: Get commit sha
-        run: GIT_SHA=$(git rev-parse HEAD)
       - name: Tag Docker image
-        run: docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
+        run:
+            GIT_SHA=$(git rev-parse HEAD)
+            docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
       - name: Push Docker images
         run: docker push lukzan/cdas-go:latest && docker push lukzan/cdas-go:$GIT_SHA
