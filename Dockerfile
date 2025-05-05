@@ -7,12 +7,8 @@ LABEL maintainer="s2410455009@students.fh-hagenberg.at"
 WORKDIR /src
 
 # Copy local file `main.go` to the working directory
-COPY main.go .
-# had to add go.mod since the image build was failing without it
-COPY go.mod .
-# Additional files to be copied (from part 3 on)
-COPY app.go .
-COPY model.go .
+# Also copy other needed files to the working directory
+COPY main.go go.mod go.sum app.go model.go ./
 
 # List items in the working directory (ls)
 RUN ls
