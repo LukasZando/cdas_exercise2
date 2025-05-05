@@ -6,9 +6,9 @@ on:
     branches: ["main"]
 
 env:
-  APP_DB_USERNAME: ${{ vars.APP_DB_USERNAME }}
-  APP_DB_PASSWORD: ${{ vars.APP_DB_PASSWORD }}
-  APP_DB_NAME: ${{ vars.APP_DB_NAME }}
+  APP_DB_USERNAME: ${{ secrets.APP_DB_USERNAME }}
+  APP_DB_PASSWORD: ${{ secrets.APP_DB_PASSWORD }}
+  APP_DB_NAME: ${{ secrets.APP_DB_NAME }}
 
 jobs:
   build:
@@ -38,8 +38,29 @@ jobs:
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5.1.0
         env:
-          SONAR_TOKEN: ${{ vars.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
             -Dsonar.organization=lukaszando
             -Dsonar.projectKey=LukasZando_cdas_exercise2
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: Production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.REGISTRY_USER }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build Docker image
+        run: docker build -t lukzan/cdas-go:latest .
+      - name: Get commit sha
+        run: GIT_SHA=$(git rev-parse HEAD)
+      - name: Tag Docker image
+        run: docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
+      - name: Push Docker images
+        run: docker push lukzan/cdas-go:latest && docker push lukzan/cdas-go:$GIT_SHA
