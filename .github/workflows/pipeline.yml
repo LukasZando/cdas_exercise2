@@ -59,8 +59,8 @@ jobs:
       - name: Build Docker image
         run: docker build -t lukzan/cdas-go:latest .
       - name: Tag Docker image
-        run:
-            GIT_SHA=$(git rev-parse HEAD)
-            docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
+        run: |
+          GIT_SHA=$(git rev-parse HEAD)
+          docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
       - name: Push Docker images
         run: docker push lukzan/cdas-go:latest && docker push lukzan/cdas-go:$GIT_SHA
