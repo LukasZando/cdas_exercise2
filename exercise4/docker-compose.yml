@@ -1,0 +1,36 @@
+services:
+  database:
+    image: postgres:latest
+    container_name: postgres_cdas_go
+    environment:
+      POSTGRES_USER: postgres # ${APP_DB_USERNAME}
+      POSTGRES_PASSWORD: password # ${APP_DB_PASSWORD}
+      POSTGRES_DB: exercise2_db # ${APP_DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Scripts in the docker-entrypoint-initdb.d directory will be executed on first run
+      - ./db_init:/docker-entrypoint-initdb.d
+    networks:
+      - cdas_network
+
+  go_app:
+    image: lukzan/cdas-go:latest
+    container_name: cdas_go
+    environment:
+      - APP_DB_NAME=exercise2_db
+      - APP_DB_USERNAME=postgres
+      - APP_DB_PASSWORD=password
+      - APP_DB_HOST=database
+    ports:
+      - "9090:8080"
+    networks:
+      - cdas_network
+
+networks:
+  cdas_network:
+    driver: bridge
+
+volumes:
+  pgdata:

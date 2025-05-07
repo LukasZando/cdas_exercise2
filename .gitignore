@@ -26,3 +26,6 @@ go.work.sum
 
 db_data
 .idea
+
+# MAC
+.DS_Store
