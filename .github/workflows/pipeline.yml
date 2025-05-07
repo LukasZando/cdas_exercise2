@@ -56,6 +56,20 @@ jobs:
             -Dsonar.organization=lukaszando
             -Dsonar.projectKey=LukasZando_cdas_exercise2
 
+  trivyscan:
+    name: Trivy Scan
+    runs-on: ubuntu-latest
+    environment: Test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Run Trivy Scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          trivy-config: trivy.yaml
+
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
