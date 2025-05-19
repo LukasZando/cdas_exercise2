@@ -67,8 +67,24 @@ jobs:
         uses: aquasecurity/trivy-action@0.28.0
         with:
           scan-type: 'fs'
+          format: 'table'
+          vuln-type: 'os,library'
           scan-ref: '.'
-          trivy-config: trivy.yaml
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          scanners: 'vuln,misconfig'
+      - name: Build Docker image
+        run: docker build -t lukzan/cdas-go:trivy .
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: 'image'
+          image-ref: 'lukzan/cdas-go:trivy'
+          format: 'table'
+          vuln-type: 'os,library'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+          scanners: 'vuln,misconfig'
 
   deploy:
     name: Deploy
