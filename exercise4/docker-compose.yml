@@ -3,9 +3,9 @@ services:
     image: postgres:latest
     container_name: postgres_cdas_go
     environment:
-      POSTGRES_USER: postgres # ${APP_DB_USERNAME}
-      POSTGRES_PASSWORD: password # ${APP_DB_PASSWORD}
-      POSTGRES_DB: exercise2_db # ${APP_DB_NAME}
+      POSTGRES_USER: ${APP_DB_USERNAME}
+      POSTGRES_PASSWORD: ${APP_DB_PASSWORD}
+      POSTGRES_DB: ${APP_DB_NAME}
     ports:
       - "5432:5432"
     volumes:
@@ -19,9 +19,9 @@ services:
     image: lukzan/cdas-go:latest
     container_name: cdas_go
     environment:
-      - APP_DB_NAME=exercise2_db
-      - APP_DB_USERNAME=postgres
-      - APP_DB_PASSWORD=password
+      - APP_DB_NAME=${APP_DB_NAME}
+      - APP_DB_USERNAME=${APP_DB_USERNAME}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD}
       - APP_DB_HOST=database
     ports:
       - "9090:8080"
