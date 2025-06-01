@@ -35,15 +35,7 @@ jobs:
         run: docker compose up -d
       - name: Wait for PostgreSQL to be ready
         run: |
-          echo "Waiting for PostgreSQL to be ready on $APP_DB_HOST:5432..."
-          for i in {1..15}; do
-            if nc -z $APP_DB_HOST 5432; then
-              echo "PostgreSQL is ready!"
-              break
-            fi
-            echo "Retrying in 2s... ($i)"
-            sleep 2
-          done
+          sleep 10
       - name: Run Go Tests with Coverage
         run: |
           mkdir -p .qodana/code-coverage
