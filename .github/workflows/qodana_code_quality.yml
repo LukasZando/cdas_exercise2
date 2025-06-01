@@ -35,9 +35,9 @@ jobs:
         run: docker compose up -d
       - name: Wait for PostgreSQL to be ready
         run: |
-          echo "Waiting for PostgreSQL to be ready..."
+          echo "Waiting for PostgreSQL to be ready on $APP_DB_HOST:5432..."
           for i in {1..15}; do
-            if docker exec postgres_cdas pg_isready -U $APP_DB_USERNAME; then
+            if nc -z $APP_DB_HOST 5432; then
               echo "PostgreSQL is ready!"
               break
             fi
@@ -46,19 +46,17 @@ jobs:
           done
       - name: Run Go Tests with Coverage
         run: |
-          go test -v -coverprofile=coverage.out ./...
-      - name: Install gcov2lcov
-        run: |
-          go install github.com/jandelgado/gcov2lcov@latest
-          echo "$HOME/go/bin" >> $GITHUB_PATH
-      - name: Convert Go Coverage to LCOV
-        run: |
-          mkdir -p qodana/code-coverage
-          gcov2lcov -infile coverage.out -outfile qodana/code-coverage/lcov.info
-
+          mkdir -p .qodana/code-coverage
+          go test ./... -coverprofile .qodana/code-coverage/coverage.out
+      - name: Archive coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-coverage-data
+          path: GO/go-test-coverage/.qodana/code-coverage
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2025.1
         with:
+          args: "-i,GO/go-test-coverage,--linter,jetbrains/qodana-go:latest"
           pr-mode: false
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1235115567 }}
