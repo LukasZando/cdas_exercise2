@@ -6,10 +6,18 @@ on:
     branches: # Specify your branches here
       - main # The 'main' branch
       - 'releases/*' # The release branches
+      - project
+
+env:
+  APP_DB_USERNAME: ${{ secrets.APP_DB_USERNAME }}
+  APP_DB_PASSWORD: ${{ secrets.APP_DB_PASSWORD }}
+  APP_DB_NAME: ${{ secrets.APP_DB_NAME }}
+  APP_DB_HOST: ${{ secrets.APP_DB_HOST }}
 
 jobs:
   qodana:
     runs-on: ubuntu-latest
+    environment: Test
     permissions:
       contents: write
       pull-requests: write
@@ -19,6 +27,24 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
           fetch-depth: 0  # a full history is required for pull request analysis
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.x'
+      - name: Start Container (postgreSQL)
+        run: docker compose up -d
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          sleep 10
+      - name: Run Go Tests with Coverage
+        run: |
+          mkdir -p .qodana/code-coverage
+          go test ./... -coverprofile .qodana/code-coverage/coverage.out
+      - name: Archive coverage data
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-coverage-data
+          path: .qodana/code-coverage
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2025.1
         with:

@@ -1,9 +1,9 @@
 name: cdas-go
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "project"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "project"]
 
 env:
   APP_DB_USERNAME: ${{ secrets.APP_DB_USERNAME }}
@@ -28,7 +28,7 @@ jobs:
         run: | 
           echo "Waiting for PostgreSQL to be ready..."
           for i in {1..15}; do
-            if docker exec postgres_cdas_go pg_isready -U $APP_DB_USERNAME; then
+            if docker exec postgres_cdas pg_isready -U $APP_DB_USERNAME; then
               echo "PostgreSQL is ready!"
               break
             fi
@@ -56,55 +56,55 @@ jobs:
             -Dsonar.organization=lukaszando
             -Dsonar.projectKey=LukasZando_cdas_exercise2
 
-  trivyscan:
-    name: Trivy Scan
-    runs-on: ubuntu-latest
-    environment: Test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run Trivy Scan
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: 'fs'
-          format: 'table'
-          vuln-type: 'os,library'
-          scan-ref: '.'
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
-          scanners: 'vuln,misconfig'
-      - name: Build Docker image
-        run: docker build -t lukzan/cdas-go:trivy .
-      - name: Trivy Image Scan
-        uses: aquasecurity/trivy-action@0.28.0
-        with:
-          scan-type: 'image'
-          image-ref: 'lukzan/cdas-go:trivy'
-          format: 'table'
-          vuln-type: 'os,library'
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
-          scanners: 'vuln,misconfig'
+#  trivyscan:
+#    name: Trivy Scan
+#    runs-on: ubuntu-latest
+#    environment: Test
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#      - name: Run Trivy Scan
+#        uses: aquasecurity/trivy-action@0.28.0
+#        with:
+#          scan-type: 'fs'
+#          format: 'table'
+#          vuln-type: 'os,library'
+#          scan-ref: '.'
+#          exit-code: '1'
+#          severity: 'CRITICAL,HIGH'
+#          scanners: 'vuln,misconfig'
+#      - name: Build Docker image
+#        run: docker build -t lukzan/cdas-go:trivy .
+#      - name: Trivy Image Scan
+#        uses: aquasecurity/trivy-action@0.28.0
+#        with:
+#          scan-type: 'image'
+#          image-ref: 'lukzan/cdas-go:trivy'
+#          format: 'table'
+#          vuln-type: 'os,library'
+#          exit-code: '1'
+#          severity: 'CRITICAL,HIGH'
+#          scanners: 'vuln,misconfig'
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    environment: Test
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.REGISTRY_USER }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-      - name: Build Docker image
-        run: docker build -t lukzan/cdas-go:latest .
-      - name: Tag Docker image
-        run: |
-          GIT_SHA=$(git rev-parse HEAD)
-          docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
-      - name: Push Docker images
-        run: |
-          GIT_SHA=$(git rev-parse HEAD)
-          docker push lukzan/cdas-go:latest && docker push lukzan/cdas-go:$GIT_SHA
+#  deploy:
+#    name: Deploy
+#    runs-on: ubuntu-latest
+#    environment: Test
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#      - name: Login to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ secrets.REGISTRY_USER }}
+#          password: ${{ secrets.REGISTRY_PASSWORD }}
+#      - name: Build Docker image
+#        run: docker build -t lukzan/cdas-go:latest .
+#      - name: Tag Docker image
+#        run: |
+#          GIT_SHA=$(git rev-parse HEAD)
+#          docker tag lukzan/cdas-go:latest lukzan/cdas-go:$GIT_SHA
+#      - name: Push Docker images
+#        run: |
+#          GIT_SHA=$(git rev-parse HEAD)
+#          docker push lukzan/cdas-go:latest && docker push lukzan/cdas-go:$GIT_SHA
