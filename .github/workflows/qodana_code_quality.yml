@@ -6,6 +6,7 @@ on:
     branches: # Specify your branches here
       - main # The 'main' branch
       - 'releases/*' # The release branches
+      - project
 
 jobs:
   qodana:
@@ -19,6 +20,35 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
           fetch-depth: 0  # a full history is required for pull request analysis
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.x'
+      - name: Start Container (postgreSQL)
+        run: docker compose up -d
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          echo "Waiting for PostgreSQL to be ready..."
+          for i in {1..15}; do
+            if docker exec postgres_cdas_go pg_isready -U $APP_DB_USERNAME; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Retrying in 2s... ($i)"
+            sleep 2
+          done
+      - name: Run Go Tests with Coverage
+        run: |
+          go test -v -coverprofile=coverage.out ./...
+      - name: Install gcov2lcov
+        run: |
+          go install github.com/jandelgado/gcov2lcov@latest
+          echo "$HOME/go/bin" >> $GITHUB_PATH
+      - name: Convert Go Coverage to LCOV
+        run: |
+          mkdir -p qodana/code-coverage
+          gcov2lcov -infile coverage.out -outfile qodana/code-coverage/lcov.info
+
       - name: 'Qodana Scan'
         uses: JetBrains/qodana-action@v2025.1
         with:
