@@ -11,6 +11,7 @@ on:
 jobs:
   qodana:
     runs-on: ubuntu-latest
+    environment: Test
     permissions:
       contents: write
       pull-requests: write
@@ -30,7 +31,7 @@ jobs:
         run: |
           echo "Waiting for PostgreSQL to be ready..."
           for i in {1..15}; do
-            if docker exec postgres_cdas_go pg_isready -U $APP_DB_USERNAME; then
+            if docker exec postgres_cdas pg_isready -U $APP_DB_USERNAME; then
               echo "PostgreSQL is ready!"
               break
             fi
