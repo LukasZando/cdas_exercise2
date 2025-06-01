@@ -8,6 +8,12 @@ on:
       - 'releases/*' # The release branches
       - project
 
+env:
+  APP_DB_USERNAME: ${{ secrets.APP_DB_USERNAME }}
+  APP_DB_PASSWORD: ${{ secrets.APP_DB_PASSWORD }}
+  APP_DB_NAME: ${{ secrets.APP_DB_NAME }}
+  APP_DB_HOST: ${{ secrets.APP_DB_HOST }}
+
 jobs:
   qodana:
     runs-on: ubuntu-latest
